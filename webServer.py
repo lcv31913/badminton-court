@@ -4,9 +4,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():    
-    dates = badminton.getDate(request.args['username'], request.args['password'])
-    date = [str(int(date)) for date in dates]
-    response = ', '.join(date) + ".<br>" + "(大同運動中心)這些是可以預約的羽球球場日期"
+    response = badminton.getDate(request.args['username'], request.args['password'])
 
     html_content = f"""
     <!DOCTYPE html>
