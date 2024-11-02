@@ -12,12 +12,12 @@ def parserDate(court, domain, payload, resultQueue):
     datesStr = ""
     session = requests.Session()
     try:
-        response = session.post(domain+'?Module=login_page&files=login', data=payload, headers=headers)  #url for login        
+        response = session.post(domain+'?Module=login_page&files=login', data=payload, headers=headers)  #url for login  
+        #The key word will be included in thse response if login is successful      
         if '修改會員資料' not in response.text:
             return
 
         response = session.get(domain+'?module=net_booking&files=booking_place&PT=1', headers=headers)   #url for parsering date of court
-        s = time.time()
         soup = BeautifulSoup(response.text, 'lxml')
         dates = soup.find_all(attrs={"bgcolor": "#87C675"})
     except Exception  as e:
@@ -110,7 +110,7 @@ def getDate(username, password):
    
     with multiprocessing.Pool(processes=16) as pool:
         results = pool.starmap(parserDate, parameters)
-        print(results)  # 輸出：[1, 4, 9, 16, 25] 
+        print(results)
     '''
     
 if __name__ == '__main__':
