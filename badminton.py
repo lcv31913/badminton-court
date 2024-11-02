@@ -1,8 +1,11 @@
-from math import e
-from bs4 import BeautifulSoup
 import requests
 import queue
 import threading
+import multiprocessing
+import time
+from math import e
+from bs4 import BeautifulSoup
+
 
 def parserDate(court, domain, payload, resultQueue):
     headers = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"}
@@ -14,7 +17,7 @@ def parserDate(court, domain, payload, resultQueue):
             return
 
         response = session.get(domain+'?module=net_booking&files=booking_place&PT=1', headers=headers)   #url for parsering date of court
-
+        s = time.time()
         soup = BeautifulSoup(response.text, 'lxml')
         dates = soup.find_all(attrs={"bgcolor": "#87C675"})
     except Exception  as e:
@@ -28,15 +31,14 @@ def parserDate(court, domain, payload, resultQueue):
             
             if td_tag:                
                 datesStr += td_tag.get_text(strip=True) + "，"
-    
-        resultQueue.put(f"{court}的日期，{datesStr}\n")
-    
+        resultQueue.put(f"{court}的日期，{datesStr}</br>\n")
+        print(f"spent {time.time()-s}   seconds")
+        
+        #hrer is that use multi processes way to parser data
+        #return f"{court}的日期，{datesStr}\n"
 
     
-def getDate(username, password):
-    threads = []
-    resultQueue = queue.Queue()
-    
+def getDate(username, password):            
     court = \
     {
         '信義運動中心': 'https://xs.teamxports.com/xs03.aspx',
@@ -83,7 +85,9 @@ def getDate(username, password):
         'loginid': username,
         'loginpw': password
     }
-        
+    
+    resultQueue = queue.Queue()
+    threads = []
     for center, domain in court.items():
         thread = threading.Thread(target=parserDate, args=(center, domain, payload, resultQueue))
         threads.append(thread)
@@ -97,6 +101,17 @@ def getDate(username, password):
         return ''.join(resultQueue.get() for _ in range(resultQueue.qsize()))
     else:
         return "account not exist or no available court."
+    
+    '''
+    #here is testing for using multi processes to parser data
+    parameters = []
+    for center, domain in court.items():
+        parameters.append((center, domain, payload))
+   
+    with multiprocessing.Pool(processes=16) as pool:
+        results = pool.starmap(parserDate, parameters)
+        print(results)  # 輸出：[1, 4, 9, 16, 25] 
+    '''
     
 if __name__ == '__main__':
     None
