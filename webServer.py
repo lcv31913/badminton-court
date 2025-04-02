@@ -1,24 +1,25 @@
-from flask import Flask, Response, request
+from flask import Flask, Response, request, render_template
 import badminton
 app = Flask(__name__)
 
 @app.route('/')
 def home():    
-    response = badminton.getDate(request.args['username'], request.args['password'])
+    return render_template('index.html')
 
-    html_content = f"""
-    <!DOCTYPE html>
-    <html lang="zh">
-    <head>
-        <meta charset="UTF-8">
-        <title>球場查詢</title>
-    </head>
-    <body>
-        <p>{response}</p>
-    </body>
-    </html>
-    """
-    return html_content
+@app.route('/search')
+def search():
+    device_type = ""
+    ua = request.headers.get("User-Agent")
+    
+    if any(keyword in ua for keyword in ["Mobile", "iPhone", "Android", "iPad"]):
+        device_type = "mobile"
+    else:
+        device_type = "desktop"
+
+    response = badminton.getDate(request.args['account'], request.args['password'], device_type)
+    print(response)
+    return response
+    #return device_type
 
 if __name__ == '__main__':
     ip = '0.0.0.0'

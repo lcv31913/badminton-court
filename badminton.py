@@ -3,16 +3,18 @@ import queue
 import threading
 import multiprocessing
 import time
+import json
 from math import e
 from bs4 import BeautifulSoup
 
 
-def parserDate(court, domain, payload, resultQueue):
+def parserDate(court, domain, payload, device_type, resultQueue):
     headers = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"}
     datesStr = ""
+    result = {}
     session = requests.Session()
     try:
-        response = session.post(domain+'?Module=login_page&files=login', data=payload, headers=headers)  #url for login  
+        response = session.post(domain+'?Module=login_page&files=login', data=payload, headers=headers, timeout=3)  #url for login  
         #The key word will be included in thse response if login is successful      
         if '修改會員資料' not in response.text:
             return
@@ -31,14 +33,17 @@ def parserDate(court, domain, payload, resultQueue):
             
             if td_tag:                
                 datesStr += td_tag.get_text(strip=True) + "，"
-        resultQueue.put(f"{court}的日期，{datesStr}</br>\n")
-        print(f"spent {time.time()-s}   seconds")
-        
-        #hrer is that use multi processes way to parser data
-        #return f"{court}的日期，{datesStr}\n"
+        if device_type == "desktop":
+            result["court"] = court
+            result["domain"] = domain
+            result["date"] = datesStr
+            resultQueue.put(json.dumps(result, ensure_ascii=False) + "\n")
+            
+        elif device_type == "mobile":
+            resultQueue.put(f"{court}的日期，{datesStr}</br>\n")        
 
     
-def getDate(username, password):            
+def getDate(account, password, device_type):            
     court = \
     {
         '信義運動中心': 'https://xs.teamxports.com/xs03.aspx',
@@ -82,14 +87,14 @@ def getDate(username, password):
     
     payload =\
     {
-        'loginid': username,
+        'loginid': account,
         'loginpw': password
     }
     
     resultQueue = queue.Queue()
     threads = []
     for center, domain in court.items():
-        thread = threading.Thread(target=parserDate, args=(center, domain, payload, resultQueue))
+        thread = threading.Thread(target=parserDate, args=(center, domain, payload, device_type, resultQueue))
         threads.append(thread)
         thread.start()
     
@@ -101,17 +106,7 @@ def getDate(username, password):
         return ''.join(resultQueue.get() for _ in range(resultQueue.qsize()))
     else:
         return "account not exist or no available court."
-    
-    '''
-    #here is testing for using multi processes to parser data
-    parameters = []
-    for center, domain in court.items():
-        parameters.append((center, domain, payload))
    
-    with multiprocessing.Pool(processes=16) as pool:
-        results = pool.starmap(parserDate, parameters)
-        print(results)
-    '''
     
 if __name__ == '__main__':
     None
