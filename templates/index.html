@@ -143,11 +143,15 @@
   	  const password = document.getElementById('password').value;
 	  const resultBox = document.getElementById('result');
 	  
+	  const timing = gsap.timeline({ repeat: -1, repeatDelay: 0.3 });
 	  const loadingModal = document.getElementById('loadingModal');
 	  const loadingImage = document.getElementById('loadingImage');
 	  
-	  gsap.set(loadingModal, { opacity: 1, pointerEvents: 'all' });
-	  const spin = gsap.to(loadingImage, { rotation: 360, duration: 5, repeat: -1, ease: "none" });
+	  gsap.set(loadingModal, { opacity: 1, pointerEvents: 'all' });	  
+      timing.to(loadingImage, { rotation: 90, duration: 0.5, ease: "power1.inOut" })
+		  .to(loadingImage, { rotation: 180, duration: 0.5, ease: "power1.inOut" })
+		  .to(loadingImage, { rotation: 270, duration: 0.5, ease: "power1.inOut" })
+		  .to(loadingImage, { rotation: 360, duration: 0.5, ease: "power1.inOut" });
 
 	  resultBox.style.display = 'block';
       //resultBox.innerText = '查詢中...';
