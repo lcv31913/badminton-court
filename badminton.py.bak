@@ -40,6 +40,7 @@ def parserDate(court, domain, payload, device_type, resultQueue):
         datesStr = datesStr[:-1]            
         if device_type == "desktop":
             result["court"] = court
+            #result["domain"] = f"{domain}"
             result["domain"] = f"{domain}"
             result["date"] = datesStr
             result["cookie_string"] = cookie_string

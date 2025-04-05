@@ -118,11 +118,12 @@
     <div class="result" id="result"></div>
   </div>
 
-  <script>
-    async function fetchAvailability() {
-      const account = document.getElementById('account').value;
-	  const password = document.getElementById('password').value;
-      const resultBox = document.getElementById('result');
+  <script>  
+        	  
+    async function fetchAvailability() {  
+	  const account = document.getElementById('account').value;	
+  	  const password = document.getElementById('password').value;
+	  const resultBox = document.getElementById('result');
 	  resultBox.style.display = 'block';
       //resultBox.innerText = '查詢中...';
 
@@ -132,13 +133,13 @@
         const text = await res.text();
 		const lines = text.trim().split('\n');
 		const data = lines.map(line => JSON.parse(line));
-        resultBox.innerHTML = await renderTable(data);
+        resultBox.innerHTML = await renderTable(data, account, password);
       } catch (err) {
         resultBox.innerText = '發生錯誤，請稍後再試';
       }
     }
 	
-	async function renderTable(data) {
+	async function renderTable(data, account, password) {
 	  if (!Array.isArray(data) || data.length === 0) {
 		return '<p>目前查無資料</p>';
 	  }
@@ -146,16 +147,15 @@
 	  // 自動根據第一筆資料的 key 畫表格標題
 	  const headers = Object.keys(data[0]);
 	  let html = '<table><thead><tr>';
-	  for (const key of headers) {
-		html += `<th>${key}</th>`;
-	  }
+	  html += "<th>地點</th>";
+	  html += "<th>時段</th>";
+	  
 	  html += '</tr></thead><tbody>';
 
 	  for (const row of data) {
 		html += '<tr>';
-		for (const key of headers) {
-		  html += `<td>${row[key]}</td>`;
-		}
+		html += `<td><a href="${row["domain"]}?module=net_booking&files=booking_place&PT=1" target="_blank" style="color:white;">${row["court"]}</a></td>`;
+		html += `<td>${row["date"]}</td>`;
 		html += '</tr>';
 	  }
 
