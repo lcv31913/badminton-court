@@ -188,6 +188,7 @@
 
 	  for (const row of data) {
 		html += '<tr>';
+		//html += `<td><a href="${row["domain"]}?module=net_booking&files=booking_place&PT=1" target="_blank" style="color:white;">${row["court"]}</a></td>`;
 		html += `<td><span onclick="autoLogin('${row["domain"]}', '${account}', '${password}')" style="cursor: pointer; color: white; text-decoration: underline;">${row["court"]}</span></td>`;
 		html += `<td>${row["date"]}</td>`;
 		html += '</tr>';
