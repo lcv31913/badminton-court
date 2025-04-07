@@ -182,7 +182,7 @@
 	  const headers = Object.keys(data[0]);
 	  let html = '<table><thead><tr>';
 	  html += "<th>地點</th>";
-	  html += "<th>時段</th>";
+	  html += "<th>本月日期</th>";
 	  
 	  html += '</tr></thead><tbody>';
 
@@ -212,7 +212,7 @@
 	  `;
 	  
 	  popup.document.write(html);
-	  setTimeout(() => {popup.location.href = `${domain}?module=net_booking&files=booking_place&PT=1`;}, 300);
+	  setTimeout(() => {popup.location.href = `${domain}?module=net_booking&files=booking_place&PT=1`;}, 1000);
 	}
   </script>
 </body>
