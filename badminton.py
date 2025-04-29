@@ -8,7 +8,7 @@ from math import e
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
         
-def parserDate(court, domain, payload, device_type, resultQueue):
+def parserDate(court, domain, payload, shortcut, resultQueue):
     headers = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"}
     datesStr = ""
     result = {}
@@ -28,28 +28,24 @@ def parserDate(court, domain, payload, device_type, resultQueue):
         print('------------------------------------------')
 
     if len(dates) > 0:
-        cookies_dict = session.cookies.get_dict()
-        cookie_string = "; ".join([f"{key}={value}" for key, value in cookies_dict.items()])
-        
-        print(cookie_string)
         for date in dates:
             td_tag = date.find('td', class_='tWord')
             
             if td_tag:                
                 datesStr += td_tag.get_text(strip=True) + "，"                    
         datesStr = datesStr[:-1]            
-        if device_type == "desktop":
+        if shortcut == "1":
+            resultQueue.put(f"{court}的日期，{datesStr}</br>\n")        
+            
+        else:
             result["court"] = court
             result["domain"] = f"{domain}"
             result["date"] = datesStr
-            result["cookie_string"] = cookie_string
             resultQueue.put(json.dumps(result, ensure_ascii=False) + "\n")
             
-        elif device_type == "mobile":
-            resultQueue.put(f"{court}的日期，{datesStr}</br>\n")        
 
     
-def getDate(account, password, device_type):            
+def getDate(account, password, shortcut):            
     court = \
     {
         '信義運動中心': 'https://xs.teamxports.com/xs03.aspx',
@@ -100,7 +96,7 @@ def getDate(account, password, device_type):
     resultQueue = queue.Queue()
     threads = []
     for center, domain in court.items():
-        thread = threading.Thread(target=parserDate, args=(center, domain, payload, device_type, resultQueue))
+        thread = threading.Thread(target=parserDate, args=(center, domain, payload, shortcut, resultQueue))
         threads.append(thread)
         thread.start()
     

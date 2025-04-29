@@ -7,19 +7,10 @@ def home():
     return render_template('index.html')
 
 @app.route('/search')
-def search():
-    device_type = ""
-    ua = request.headers.get("User-Agent")
+def search():    
+    response = badminton.getDate(request.args.get('account'), request.args.get('password'), request.args.get('shortcut'))
     
-    if any(keyword in ua for keyword in ["Mobile", "iPhone", "Android", "iPad"]):
-        device_type = "mobile"
-    else:
-        device_type = "desktop"
-
-    response = badminton.getDate(request.args['account'], request.args['password'], device_type)
-    print(response)
-    return response
-    #return device_type
+    return Response(response, content_type='text/plain; charset=utf-8')
 
 if __name__ == '__main__':
     ip = '0.0.0.0'
