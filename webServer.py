@@ -14,5 +14,5 @@ def search():
 
 if __name__ == '__main__':
     ip = '0.0.0.0'
-    port = 80
+    port = 3636
     app.run(host=ip, port=port)
